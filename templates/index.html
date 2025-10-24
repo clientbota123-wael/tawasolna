@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <h1 align="center" style="background:#aaaaff;color: #ffffff">مدرسة الحمرية الحلقة الثانية والثالثة بنين</h1>
+ 
+  <title>تواصلنا </title>
+   <h1 align="center" style="font-weight: 800; color: #004be3" >نظام دعم النطق لأصحاب الهمم بأستخدام الذكاء الاصطناعى </title></h1>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div style="text-align:center; font-size:26px; font-weight:bold; margin-top:15px;">
+      <span style="font-size: 40px; color: #a60000">🗣️ تواصلنا</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="category-tabs"></nav>
+  <div id="phrase-text" class="phrase-text">اختر رمزًا لتكوين الجملة هنا...</div>
+  <main><div id="grid" class="grid"></div></main>
+
+  <footer class="bottom-bar">
+    <button id="btn-record" class="control-btn">🎙️ تسجيل صوتي</button>
+    <button id="btn-voice" class="control-btn">🔁 تبديل الصوت: <span id="voice-label">ذكري</span></button>
+    <button id="btn-fav" class="control-btn">⭐ المفضلة</button>
+    <button id="btn-speak" class="control-btn primary">🔊 نطق الجملة الحالية</button>
+    <button id="btn-clear" class="control-btn danger">🗑 مسح</button>
+  </footer>
+
+  <script>
+  const categories = [
+    { id:"basic", name:"الاحتياجات الأساسية", icon:"💧", color:"#BBDEFB",
+      items:[
+        {label:"💧 ماء", phrase:"أريد ماءً"},
+        {label:"🚻 دورة المياه", phrase:"أريد الذهاب إلى دورة المياه"},
+        {label:"🍽️ طعام", phrase:"أنا جائع"},
+        {label:"🆘 مساعدة", phrase:"أحتاج إلى مساعدة"},
+        {label:"😴 أرتاح", phrase:"أريد أن أرتاح قليلًا"},
+        {label:"🤕 ألم", phrase:"أشعر بالألم"}
+      ]
+    },
+    { id:"school", name:"المدرسة", icon:"🏫", color:"#FFE0B2",
+      items:[
+        {label:"👩‍🏫 المعلم", phrase:"أريد التحدث مع المعلم"},
+        {label:"📖 كتاب", phrase:"أحتاج كتابي"},
+        {label:"✏️ قلم", phrase:"أحتاج قلمًا"},
+        {label:"🖥️ حاسوب", phrase:"أريد استخدام الحاسوب"},
+        {label:"⏸️ استراحة", phrase:"أريد استراحة"}
+      ]
+    },
+    { id:"home", name:"البيت", icon:"🏠", color:"#F8BBD0",
+      items:[
+        {label:"👩 أمي", phrase:"أريد أمي"},
+        {label:"👨 أبي", phrase:"أريد أبي"},
+        {label:"🧩 ألعب", phrase:"أريد أن ألعب"},
+        {label:"📺 تلفاز", phrase:"أريد مشاهدة التلفاز"},
+        {label:"🚪 الخارج", phrase:"أريد الخروج"}
+      ]
+    },
+    { id:"feelings", name:"المشاعر", icon:"💖", color:"#C8E6C9",
+      items:[
+        {label:"😊 سعيد", phrase:"أنا سعيد"},
+        {label:"😢 حزين", phrase:"أنا حزين"},
+        {label:"😠 غاضب", phrase:"أنا غاضب"},
+        {label:"😨 خائف", phrase:"أنا خائف"},
+        {label:"❤️ أحب", phrase:"أنا أحب ذلك"}
+      ]
+    },
+    { id:"study", name:"الدراسة", icon:"📚", color:"#B3E5FC",
+      items:[
+        {label:"🧮 رياضيات", phrase:"أريد حل مسائل رياضيات"},
+        {label:"🧪 علوم", phrase:"أريد تجربة علمية ممتعة"},
+        {label:"📖 قراءة", phrase:"أريد أن أقرأ قصة"},
+        {label:"✍️ إملاء", phrase:"أريد أن أكتب كلمات جديدة"},
+        {label:"🔤 حروف", phrase:"أريد أن أتعلم الحروف"}
+      ]
+    }
+  ];
+
+  const tabs = document.getElementById("category-tabs");
+  const grid = document.getElementById("grid");
+  const phraseBox = document.getElementById("phrase-text");
+  let currentCategory = categories[0].id;
+  let currentVoice = "male";
+  let currentPhrase = "";
+
+  categories.forEach((cat, index) => {
+    const btn = document.createElement("button");
+    btn.className = "tab-btn" + (index === 0 ? " active" : "");
+    btn.innerHTML = `<span style="font-size:40px;">${cat.icon}</span> ${cat.name}`;
+    btn.onclick = () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentCategory = cat.id;
+      renderGrid();
+    };
+    tabs.appendChild(btn);
+  });
+
+  async function speakFromServer(text) {
+    if (!text) return;
+    const response = await fetch("/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, voice: currentVoice })
+    });
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.play();
+  }
+
+  function renderGrid() {
+    const cat = categories.find(c => c.id === currentCategory);
+    grid.innerHTML = "";
+    cat.items.forEach(item => {
+      const card = document.createElement("button");
+      card.className = "card";
+      card.style.background = cat.color;
+      card.innerHTML = `<div style="font-size:25px;">${item.label}</div>`;
+      card.onclick = () => {
+        phraseBox.textContent = item.phrase;
+        currentPhrase = item.phrase;
+        speakFromServer(item.phrase);
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  document.getElementById("btn-voice").onclick = function() {
+    currentVoice = (currentVoice === "male") ? "female" : "male";
+    document.getElementById("voice-label").textContent = (currentVoice === "male") ? "ذكري" : "أنثوي";
+  };
+
+  document.getElementById("btn-speak").onclick = function() {
+    if (currentPhrase) speakFromServer(currentPhrase);
+  };
+
+  document.getElementById("btn-clear").onclick = function() {
+    phraseBox.textContent = "";
+    currentPhrase = "";
+  };
+
+  document.getElementById("btn-fav").onclick = function() {
+    alert("ميزة المفضلة ستُفعّل لاحقًا ❤️");
+  };
+
+  renderGrid();
+  </script>
+</body>
+</html>

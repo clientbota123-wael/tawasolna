@@ -1,0 +1,4 @@
+Flask==3.0.3
+gTTS==2.5.1
+cachetools==5.3.3
+gunicorn==22.0.0
