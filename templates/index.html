@@ -15,21 +15,56 @@
       <span style="font-size: 40px; color: #a60000">🗣️ تواصلنا</span>
     </div>
   </header>
-
+<section id="name-section" style="text-align:center; margin:25px 0;">
+  <input id="user-name" 
+         type="text" 
+         placeholder="اكتب اسمك هنا..." 
+         style="font-size:22px; padding:8px 15px; border-radius:10px; border:2px solid #004be3; width:250px; text-align:center;">
+  <button id="btn-say-name" 
+          class="control-btn primary" 
+          style="font-size:20px; padding:10px 20px; margin-right:10px;">
+          🔊 انطق اسمي
+  </button>
+</section>
   <nav class="tabs" id="category-tabs"></nav>
   <div id="phrase-text" class="phrase-text">اختر رمزًا لتكوين الجملة هنا...</div>
   <main><div id="grid" class="grid"></div></main>
 
   <footer class="bottom-bar">
-    <button id="btn-record" class="control-btn">🎙️ تسجيل صوتي</button>
+   
     <button id="btn-voice" class="control-btn">🔁 تبديل الصوت: <span id="voice-label">ذكري</span></button>
     <button id="btn-fav" class="control-btn">⭐ المفضلة</button>
     <button id="btn-speak" class="control-btn primary">🔊 نطق الجملة الحالية</button>
     <button id="btn-clear" class="control-btn danger">🗑 مسح</button>
+    
+    
+
   </footer>
 
   <script>
   const categories = [
+  {
+  id: "national",
+  name: "وطنيات",
+  icon: "<img src='/static/icons/uae_flag.png' width='50' height='50' alt='علم الإمارات'/>",
+  color: "#FFF3CD", // لون ذهبي فاتح يوحي بالطابع الوطني
+  items: [
+    {
+      label: "<img src='/static/icons/uae_flag.png' width='180' height='180' alt='علم الإمارات'/> ",
+      phrase: "عِيشِي بِلَادِي عَاشَ اتِّحَادُ إِمَارَاتِنَا ... عِشْتِ لِشَعبٍ ... دِينُهُ الْإِسْلَامُ هَدْيُهُ القُرْآن ... حَصَّنْتُكَ بِاسْمِ الله يَا وَطَنُ ... بِلَادِي بِلَادِي بِلَادِي بِلَادِي",
+    },
+    {
+      label: "<img src='/static/icons/sheikh_zayed.jpg' width='150' height='150' alt='الشيخ زايد'/> ",
+      phrase: "قال الشيخ زايد: الاتحاد طريق القوة والعزة",
+    },
+    {
+      label: "<img src='/static/icons/moh_zayed.png' width='180' height='180' alt='الشيخ محمد بن زايد'/> ",
+      phrase: "أصحاب الهمم جزء أصيل وأساسي من مكونات مجتمعنا.. دعمهم ورعايتهم مسؤولية وأمانة",
+    }
+  ]
+},
+
+
     { id:"basic", name:"الاحتياجات الأساسية", icon:"💧", color:"#BBDEFB",
       items:[
         {label:"💧 ماء", phrase:"أريد ماءً"},
@@ -131,10 +166,11 @@
   document.getElementById("btn-voice").onclick = function() {
     currentVoice = (currentVoice === "male") ? "female" : "male";
     document.getElementById("voice-label").textContent = (currentVoice === "male") ? "ذكري" : "أنثوي";
+     alert("ميزة تغير الصوت ستُفعّل لاحقًا ️");
   };
 
   document.getElementById("btn-speak").onclick = function() {
-    if (currentPhrase) speakFromServer(currentPhrase);
+    alert("ميزة ترفع ملف الصوت ستُفعّل لاحقًا ️");   	
   };
 
   document.getElementById("btn-clear").onclick = function() {
@@ -147,6 +183,20 @@
   };
 
   renderGrid();
+  
+  document.getElementById("btn-say-name").onclick = async function() {
+  const name = document.getElementById("user-name").value.trim();
+  if (!name) {
+    alert("من فضلك اكتب اسمك أولًا 😊");
+    return;
+  }
+  
+  const phrase = `مرحباً أنا  ${name}!  وسعيد برؤيتك .`;
+  phraseBox.textContent = phrase;
+  currentPhrase = phrase;
+  speakFromServer(phrase);
+};
+
   </script>
 </body>
 </html>
